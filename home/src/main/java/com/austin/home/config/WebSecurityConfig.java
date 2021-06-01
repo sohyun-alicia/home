@@ -1,5 +1,6 @@
 package com.austin.home.config;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,10 @@ import javax.sql.DataSource;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    @Autowired
+    private DataSource dataSource;
+
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -35,26 +40,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Autowired
-    private DataSource dataSource;
-
-    @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth)
             throws Exception {
         auth.jdbcAuthentication()
                 .dataSource(dataSource)
                 .passwordEncoder(passwordEncoder())
-                .usersByUsernameQuery("select username,password,enabled "
-                        + "from user "              // 테이블 이름
+                .usersByUsernameQuery("select username, password, enabled "
+                        + "from user "
                         + "where username = ?")
-                .authoritiesByUsernameQuery("select username,name "
-                        + "from user_role ur inner join u on ur.user_id = u.id "
+                .authoritiesByUsernameQuery("select u.username,r.name "
+                        + "from user_role ur inner join user u on ur.user_id = u.id "
                         + "inner join role r on ur.role_id = r.id "
-                        + "where email = ?");
+                        + "where u.username = ?");
     }
-
 
     @Bean
-    public PasswordEncoder passwordEncoder() {      // 패스워드 암호화화
-       return new BCryptPasswordEncoder();
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
+
 }

@@ -1,8 +1,15 @@
 package com.austin.home.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+
+
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Data
 public class User {
 
     @Id
@@ -12,12 +19,12 @@ public class User {
     private String password;
     private boolean enabled;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private List<Role> roles;
+            inverseJoinColumns = @JoinColumn(name = "Role_id"))
+    private List<Role> roles = new ArrayList<>();
 
 }
